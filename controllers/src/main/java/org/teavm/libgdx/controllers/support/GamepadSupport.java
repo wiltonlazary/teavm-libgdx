@@ -1,10 +1,11 @@
 package org.teavm.libgdx.controllers.support;
 
 import com.badlogic.gdx.utils.IntMap;
-import org.teavm.dom.browser.TimerHandler;
-import org.teavm.dom.browser.Window;
-import org.teavm.dom.events.Event;
-import org.teavm.dom.events.EventListener;
+import org.teavm.jso.browser.TimerHandler;
+import org.teavm.jso.browser.Window;
+import org.teavm.jso.core.JSArray;
+import org.teavm.jso.dom.events.Event;
+import org.teavm.jso.dom.events.EventListener;
 import org.teavm.jso.*;
 
 /**
@@ -12,7 +13,7 @@ import org.teavm.jso.*;
  * @author Alexey Andreev
  */
 public class GamepadSupport {
-    private static Window window = (Window)JS.getGlobal();
+    private static Window window = Window.current();
     private static GamepadSupportListener listener;
     private static IntMap<Gamepad> gamepads = new IntMap<>();
     private static IntMap<Gamepad> gamepadsTemp = new IntMap<>();
@@ -21,17 +22,13 @@ public class GamepadSupport {
     public static void init(GamepadSupportListener listener) {
         GamepadSupport.listener = listener;
         if (isGamepardSupportAvailable()) {
-            window.addEventListener("MozGamepadConnected", new EventListener() {
-                @Override public void handleEvent(Event evt) {
-                    GamepadEvent gamepadEvent = (GamepadEvent)evt;
-                    handleGamepadConnect(gamepadEvent);
-                }
+            window.addEventListener("MozGamepadConnected", (EventListener) evt -> {
+                GamepadEvent gamepadEvent = (GamepadEvent)evt;
+                handleGamepadConnect(gamepadEvent);
             });
-            window.addEventListener("MozGamepadDisconnected", new EventListener() {
-                @Override public void handleEvent(Event evt) {
-                    GamepadEvent gamepadEvent = (GamepadEvent)evt;
-                    handleGamepadDisconnect(gamepadEvent);
-                }
+            window.addEventListener("MozGamepadDisconnected", (EventListener) evt -> {
+                GamepadEvent gamepadEvent = (GamepadEvent)evt;
+                handleGamepadDisconnect(gamepadEvent);
             });
             if (shouldStartPolling()) {
                 startPolling();
@@ -44,10 +41,7 @@ public class GamepadSupport {
             return;
         }
         consoleLog("startPolling");
-        timerId = window.setInterval(new TimerHandler() {
-            @Override
-            public void onTimer() {
-            }
+        timerId = window.setInterval(() -> {
         }, 100);
     }
 
@@ -128,16 +122,16 @@ public class GamepadSupport {
         onGamepadDisconnect(event.getGamepad());
     }
 
-    @JSBody(params = {}, script =
+    @JSBody(script =
             "return !!navigator.getGamepads || !!navigator.webkitGamepads || !!navigator.webkitGetGamepads;")
     private static native boolean shouldStartPolling();
 
-    @JSBody(params = {}, script =
+    @JSBody(script =
         "return !!navigator.getGamepads || !!navigator.webkitGetGamepads || " +
                 "!!navigator.webkitGamepads || (navigator.userAgent.indexOf('Firefox/') != -1);")
     private static native boolean isGamepardSupportAvailable();
 
-    @JSBody(params = {}, script =
+    @JSBody(script =
         "return rawGamepads = (navigator.webkitGetGamepads && navigator.webkitGetGamepads()) || " +
                 "navigator.webkitGamepads;")
     private static native JSArray<Gamepad> nativePollGamepads();

@@ -1,8 +1,8 @@
 package org.teavm.libgdx;
 
-import org.teavm.dom.events.*;
-import org.teavm.dom.html.HTMLCanvasElement;
-import org.teavm.dom.html.HTMLDocument;
+import org.teavm.jso.dom.events.*;
+import org.teavm.jso.dom.html.HTMLCanvasElement;
+import org.teavm.jso.dom.html.HTMLDocument;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;

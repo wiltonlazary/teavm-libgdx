@@ -1,10 +1,9 @@
 package org.teavm.libgdx;
 
-import org.teavm.dom.browser.Window;
-import org.teavm.dom.events.Event;
-import org.teavm.dom.events.EventListener;
-import org.teavm.dom.html.HTMLAudioElement;
-import org.teavm.jso.JS;
+import org.teavm.jso.browser.Window;
+import org.teavm.jso.dom.events.Event;
+import org.teavm.jso.dom.events.EventListener;
+import org.teavm.jso.dom.html.HTMLAudioElement;
 import com.badlogic.gdx.audio.Music;
 
 /**
@@ -12,7 +11,7 @@ import com.badlogic.gdx.audio.Music;
  * @author Alexey Andreev
  */
 public class TeaVMMusic implements Music {
-    private static Window window = (Window)JS.getGlobal();
+    private static Window window = Window.current();
     private HTMLAudioElement element;
     private boolean started;
     private OnCompletionListener listener;
@@ -20,11 +19,9 @@ public class TeaVMMusic implements Music {
     public TeaVMMusic(TeaVMFileHandle file) {
         element = (HTMLAudioElement)window.getDocument().createElement("audio");
         element.setSrc("assets/" + file.path());
-        element.addEventListener("ended", new EventListener() {
-            @Override public void handleEvent(Event evt) {
-                if (listener != null) {
-                    listener.onCompletion(TeaVMMusic.this);
-                }
+        element.addEventListener("ended", (EventListener) evt -> {
+            if (listener != null) {
+                listener.onCompletion(TeaVMMusic.this);
             }
         });
         window.getDocument().getBody().appendChild(element);
